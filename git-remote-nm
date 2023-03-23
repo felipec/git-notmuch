@@ -1,0 +1,74 @@
+#!/usr/bin/env ruby
+
+# Copyright (c) 2023 Felipe Contreras
+
+require 'notmuch'
+
+def wr(text)
+  print text
+end
+
+def wr_l(line=nil)
+  puts line
+end
+
+def wr_data(data)
+  wr_l 'data %d' % data.length
+  wr data
+end
+
+def rd_cmds(mark='')
+  $stdin.each(chomp: true) do |line|
+    break if line == mark
+    cmd, *args = line.split(' ')
+    yield cmd, args
+  end
+end
+
+def flush
+  $stdout.flush
+end
+
+def wr_capabilities
+  wr <<~EOF
+  import
+  refspec refs/heads/*:refs/notmuch/*
+
+  EOF
+end
+
+def wr_list
+  wr <<~EOF
+  ? refs/heads/master
+
+  EOF
+end
+
+def wr_import(ref)
+  wr <<~EOF
+  feature done
+  commit refs/notmuch/master
+  mark :1
+  committer #{$ident}
+  data 0
+  deleteall
+  EOF
+
+  $db.query('').search_messages.each do |msg|
+    wr_l 'M 644 inline %s/tags' % msg.message_id
+    wr_data(msg.tags.to_a.join("\n") + "\n")
+  end
+
+  wr_l
+  wr_l 'done'
+  flush
+end
+
+$alias, $url = ARGV
+$db = Notmuch::Database.new($url)
+$ident = %x[git var GIT_COMMITTER_IDENT].chomp
+
+rd_cmds do |cmd, args|
+  send('wr_' + cmd, *args)
+  flush
+end
