@@ -17,6 +17,19 @@ def wr_data(data)
   wr data
 end
 
+def rd_l
+  $stdin.readline(chomp: true)
+end
+
+def rd_s(*args)
+  rd_l.split(' ', *args)
+end
+
+def rd_data
+  _, data_len = rd_s
+  data = $stdin.read(data_len.to_i)
+end
+
 def rd_cmds(mark='')
   $stdin.each(chomp: true) do |line|
     break if line == mark
@@ -32,6 +45,7 @@ end
 def wr_capabilities
   wr <<~EOF
   import
+  export
   refspec refs/heads/*:refs/notmuch/*
 
   EOF
@@ -42,6 +56,57 @@ def wr_list
   ? refs/heads/master
 
   EOF
+end
+
+def rd_mark
+  _, mark = rd_s
+  mark
+end
+
+def db_write
+  db = Notmuch::Database.new($url, mode: Notmuch::MODE_READ_WRITE)
+  begin
+    db.begin_atomic
+    yield db
+    db.end_atomic
+  ensure
+    db.close
+  end
+end
+
+def wr_export
+  $blobs = {}
+
+  rd_cmds('done') do |cmd, args|
+    case cmd
+    when 'blob'
+      mark = rd_mark
+      $blobs[mark] = rd_data
+      rd_l # nl
+    when 'commit'
+      mark = rd_mark
+      rd_l # author
+      rd_l # committer
+      rd_data
+
+      db_write do |db|
+        loop do
+          _, _, mark, path = rd_s
+          break unless path
+          id = path.delete_suffix('/tags')
+          msg = db.find_message(id)
+          # TODO: implement `tags=` in Notmuch::Message
+          cur_tags = msg.tags.to_a
+          new_tags = $blobs[mark].split("\n")
+          (new_tags - cur_tags).each { |e| msg.add_tag(e) }
+          (cur_tags - new_tags).each { |e| msg.remove_tag(e) }
+        end
+      end
+
+      wr_l 'ok refs/heads/master'
+    end
+  end
+  wr_l
 end
 
 def wr_import(ref)
