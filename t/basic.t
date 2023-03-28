@@ -22,4 +22,10 @@ test_expect_success 'cloning' '
 	check mail.git "1258506353-20352-1-git-send-email-stewart@flamingspork.com" "inbox unread"
 '
 
+test_expect_success 'pull' '
+	notmuch tag -inbox tag:inbox &&
+	git -C mail.git pull origin &&
+	check mail.git "1258506353-20352-1-git-send-email-stewart@flamingspork.com" "unread"
+'
+
 test_done

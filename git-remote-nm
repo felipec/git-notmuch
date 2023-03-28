@@ -51,8 +51,10 @@ def wr_import(ref)
   mark :1
   committer #{$ident}
   data 0
-  deleteall
   EOF
+  wr_l 'from refs/notmuch/master^0' unless $initial
+
+  wr_l 'deleteall'
 
   $db.query('').search_messages.each do |msg|
     wr_l 'M 644 inline %s/tags' % msg.message_id
@@ -67,6 +69,8 @@ end
 $alias, $url = ARGV
 $db = Notmuch::Database.new($url)
 $ident = %x[git var GIT_COMMITTER_IDENT].chomp
+
+$initial = !system(*%w[git rev-parse --verify --quiet refs/notmuch/master])
 
 rd_cmds do |cmd, args|
   send('wr_' + cmd, *args)
