@@ -3,6 +3,7 @@
 # Copyright (c) 2023 Felipe Contreras
 
 require 'notmuch'
+require 'fileutils'
 
 def wr(text)
   print text
@@ -52,8 +53,11 @@ def wr_capabilities
 end
 
 def wr_list
+  attrs = ''
+  attrs += 'unchanged' if $lastmod == get_lastmod
+
   wr <<~EOF
-  ? refs/heads/master
+  ? refs/heads/master #{attrs}
 
   EOF
 end
@@ -61,6 +65,16 @@ end
 def rd_mark
   _, mark = rd_s
   mark
+end
+
+def get_lastmod
+  # TODO: implement `revision` in Notmuch::Database
+  _, _, lastmod = %x[notmuch count --lastmod].chomp.split("\t")
+  lastmod.to_i
+end
+
+def store_lastmod
+  File.write(File.join($nm_dir, 'lastmod'), get_lastmod)
 end
 
 def db_write
@@ -106,6 +120,8 @@ def wr_export
       wr_l 'ok refs/heads/master'
     end
   end
+
+  store_lastmod
   wr_l
 end
 
@@ -117,7 +133,7 @@ def wr_import(ref)
   committer #{$ident}
   data 0
   EOF
-  wr_l 'from refs/notmuch/master^0' unless $initial
+  wr_l 'from refs/notmuch/master^0' if $lastmod
 
   wr_l 'deleteall'
 
@@ -127,6 +143,7 @@ def wr_import(ref)
   end
 
   wr_l
+  store_lastmod
   wr_l 'done'
   flush
 end
@@ -134,6 +151,15 @@ end
 $alias, $url = ARGV
 $db = Notmuch::Database.new($url)
 $ident = %x[git var GIT_COMMITTER_IDENT].chomp
+$git_dir = ENV['GIT_DIR']
+$nm_dir = File.join($git_dir, 'notmuch')
+
+FileUtils.mkdir_p($nm_dir)
+
+begin
+  $lastmod = File.read(File.join($nm_dir, 'lastmod')).to_i
+rescue Errno::ENOENT
+end
 
 $initial = !system(*%w[git rev-parse --verify --quiet refs/notmuch/master])
 

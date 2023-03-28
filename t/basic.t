@@ -52,4 +52,18 @@ test_expect_success 'push' '
 	nm_check "1258506353-20352-1-git-send-email-stewart@flamingspork.com" "unread"
 '
 
+test_expect_success 'up to date' '
+	(
+	cd mail.git &&
+	git rev-parse origin/master > expected &&
+	git fetch origin &&
+	git rev-parse origin/master > actual &&
+	test_cmp actual expected &&
+	git rev-parse origin/master > expected &&
+	git push --verbose &&
+	git rev-parse origin/master > actual &&
+	test_cmp actual expected
+	)
+'
+
 test_done
