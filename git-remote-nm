@@ -173,8 +173,6 @@ begin
 rescue Errno::ENOENT
 end
 
-$initial = !system(*%w[git rev-parse --verify --quiet refs/notmuch/master])
-
 rd_cmds do |cmd, args|
   send('wr_' + cmd, *args)
   flush
