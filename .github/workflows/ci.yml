@@ -1,0 +1,16 @@
+name: CI
+
+on:
+  push:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install notmuch
+        run: sudo apt-get install -y notmuch ruby-notmuch
+      - name: Install sharness
+        run: git clone --depth 1 https://github.com/felipec/sharness.git t/sharness
+      - name: Run tests
+        run: SHARNESS_TEST_SRCDIR=t/sharness t/basic.t -v
