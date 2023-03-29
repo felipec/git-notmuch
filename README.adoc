@@ -42,3 +42,15 @@ And then push the local repository to the notmuch database:
 
 All of the advantages of `git` commands are available, because it is in fact a
 git repository.
+
+== Install
+
+To enable this, simply add the `git-remote-nm` script anywhere in your `$PATH`,
+and then make sure it's executable.
+
+You'll also need notmuch Ruby bindings. You can check that you have them by
+running:
+
+ % ruby -e "require 'notmuch'"
+
+That's it.
