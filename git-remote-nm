@@ -5,6 +5,10 @@
 require 'notmuch'
 require 'fileutils'
 
+def debug(*args)
+  $stderr.puts *args.inspect
+end
+
 def wr(text)
   print text
 end
