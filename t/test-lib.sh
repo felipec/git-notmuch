@@ -2,6 +2,12 @@
 
 touch "$HOME/.notmuch-config"
 
+cat > "$HOME/.gitconfig" <<-EOF
+[user]
+	name = Author
+	email = author@example.com
+EOF
+
 add_email_corpus() {
 	rm -rf "$HOME/mail"
 	cp -a "$SHARNESS_TEST_DIRECTORY"/corpus "$HOME/mail"
