@@ -10,6 +10,7 @@ test_description='Basic tests'
 check() {
 	printf "%s\n" $3 > expected &&
 	git -C "$1" cat-file -p @:"$2/tags" > actual &&
+	printf 'check: %s -- %s\n' "$2" "$3" &&
 	test_cmp expected actual
 }
 
@@ -20,6 +21,7 @@ nm_check() {
 	puts db.find_message('$1').tags.to_a.join(' ')
 	EOF
 	echo "$2" > expected &&
+	printf 'check: %s -- %s\n' "$1" "$2" &&
 	test_cmp expected actual
 }
 
@@ -34,7 +36,7 @@ test_expect_success 'cloning' '
 
 test_expect_success 'pull' '
 	notmuch tag -inbox tag:inbox &&
-	git -C mail.git pull origin &&
+	git -C mail.git pull -v &&
 	check mail.git "1258506353-20352-1-git-send-email-stewart@flamingspork.com" "unread"
 '
 
@@ -42,12 +44,12 @@ test_expect_success 'push' '
 	notmuch tag -unread "id:1258506353-20352-1-git-send-email-stewart@flamingspork.com" &&
 	(
 	cd mail.git &&
-	git pull origin &&
+	git pull -q &&
 	check . "1258506353-20352-1-git-send-email-stewart@flamingspork.com" "" &&
-	git checkout @~ -- . &&
-	git commit -m "go back" &&
+	git checkout -q @~ -- . &&
+	git commit -q -m "go back" &&
 	check . "1258506353-20352-1-git-send-email-stewart@flamingspork.com" "unread" &&
-	git push --verbose
+	git push -v
 	) &&
 	nm_check "1258506353-20352-1-git-send-email-stewart@flamingspork.com" "unread"
 '
@@ -56,13 +58,10 @@ test_expect_success 'up to date' '
 	(
 	cd mail.git &&
 	git rev-parse origin/master > expected &&
-	git fetch origin &&
+	git fetch -v &&
+	git push -v &&
 	git rev-parse origin/master > actual &&
-	test_cmp actual expected &&
-	git rev-parse origin/master > expected &&
-	git push --verbose &&
-	git rev-parse origin/master > actual &&
-	test_cmp actual expected
+	test_cmp expected actual
 	)
 '
 
@@ -80,13 +79,13 @@ test_expect_success 'encoding' '
 	Content
 	EOF
 
-	notmuch new &&
+	notmuch new --quiet &&
 	(
 	cd mail.git &&
-	git pull &&
+	git pull -q &&
 	echo encoding >> "%47x%47/x%47%47/x%47%47%47/xx/@bar.com/tags" &&
-	git commit -a -m "add encoding" &&
-	git push
+	git commit -q -a -m "add encoding" &&
+	git push -q
 	) &&
 	nm_check "$id" "encoding inbox unread"
 '
