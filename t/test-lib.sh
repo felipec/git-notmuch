@@ -1,4 +1,4 @@
-. /usr/share/sharness/sharness.sh
+. "${SHARNESS_TEST_SRCDIR-/usr/share/sharness}"/sharness.sh || exit 1
 
 touch "$HOME/.notmuch-config"
 

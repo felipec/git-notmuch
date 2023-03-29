@@ -3,7 +3,7 @@
 
 test_description='Basic tests'
 
-. ./test-lib.sh
+. "$(dirname "$0")"/test-lib.sh
 
 # shellcheck disable=SC2086
 
