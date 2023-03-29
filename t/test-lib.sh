@@ -4,7 +4,7 @@ touch "$HOME/.notmuch-config"
 
 add_email_corpus() {
 	rm -rf "$HOME/mail"
-	cp -a "$SHARNESS_TEST_DIRECTORY"/corpora/default "$HOME/mail"
+	cp -a "$SHARNESS_TEST_DIRECTORY"/corpus "$HOME/mail"
 	notmuch new --quiet
 }
 
