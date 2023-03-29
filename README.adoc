@@ -1,0 +1,44 @@
+This tool allows dumping and loading notmuch metadata as if it were a git
+repository.
+
+----
+$ git clone "nm::$HOME/mail"
+----
+
+Each message-id is a directory, and the `tags` file contains the tags, for
+example:
+
+----
+% cat 20230328173932.3614601-1-felipe.contreras@gmail.com/tags
+inbox
+unread
+----
+
+To update the tags one can do the same as one does in a normal git repository:
+
+----
+% git pull
+----
+
+It's easy to restore a previous state:
+
+----
+% git checkout @~10 -- .
+% git commit -m 'go back to the state 10 commits ago'
+----
+
+Or manually edit the tags of a message:
+
+----
+% echo to-do >> 20230328173932.3614601-1-felipe.contreras@gmail.com/tags
+% git commit -a -m 'add to-do tag'
+----
+
+And then push the local repository to the notmuch database:
+
+----
+% git push
+----
+
+All of the advantages of `git` commands are available, because it is in fact a
+git repository.
