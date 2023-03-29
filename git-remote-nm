@@ -143,8 +143,8 @@ def wr_import(ref)
   commit refs/notmuch/master
   mark :1
   committer #{$ident}
-  data 0
   EOF
+  wr_data("lastmod: %d\n" % ($lastmod || 0))
   wr_l 'from refs/notmuch/master^0' if $lastmod
 
   wr_l 'deleteall'
