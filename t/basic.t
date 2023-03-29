@@ -66,4 +66,29 @@ test_expect_success 'up to date' '
 	)
 '
 
+test_expect_success 'encoding' '
+	id="/x//x///x////xx/@bar.com" &&
+
+	cat > "$HOME/mail/new/enc" <<-EOF &&
+	Date: Tue, 28 Mar 2023 20:52:09 -0600
+	From: Foo Bar <foo@bar.com>
+	To: Nobody <me@nobody.com>
+	Subject: Weird message-id
+	Message-ID: <$id>
+	MIME-Version: 1.0
+
+	Content
+	EOF
+
+	notmuch new &&
+	(
+	cd mail.git &&
+	git pull &&
+	echo encoding >> "%47x%47/x%47%47/x%47%47%47/xx/@bar.com/tags" &&
+	git commit -a -m "add encoding" &&
+	git push
+	) &&
+	nm_check "$id" "encoding inbox unread"
+'
+
 test_done

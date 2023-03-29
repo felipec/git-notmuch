@@ -88,6 +88,14 @@ def db_write
   end
 end
 
+def decode_filename(str)
+  str.gsub('%47', '/')
+end
+
+def encode_filename(str)
+  str.gsub(%r[/(?=/)|\A/|/\Z], '%47')
+end
+
 def wr_export
   $blobs = {}
 
@@ -107,7 +115,7 @@ def wr_export
         loop do
           _, _, mark, path = rd_s
           break unless path
-          id = path.delete_suffix('/tags')
+          id = decode_filename(path.delete_suffix('/tags'))
           msg = db.find_message(id)
           # TODO: implement `tags=` in Notmuch::Message
           cur_tags = msg.tags.to_a
@@ -138,7 +146,7 @@ def wr_import(ref)
   wr_l 'deleteall'
 
   $db.query('').search_messages.each do |msg|
-    wr_l 'M 644 inline %s/tags' % msg.message_id
+    wr_l 'M 644 inline %s/tags' % encode_filename(msg.message_id)
     wr_data(msg.tags.to_a.join("\n") + "\n")
   end
 
