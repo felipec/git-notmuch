@@ -6,6 +6,8 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      GEM_HOME: /home/runner/.local/share/gem/ruby/3.0.0
     steps:
       - uses: actions/checkout@v3
       - name: Install notmuch
