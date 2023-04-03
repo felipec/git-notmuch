@@ -45,8 +45,12 @@ git repository.
 
 == Install
 
-To enable this, simply add the `git-remote-nm` script anywhere in your `$PATH`,
-and then make sure it's executable.
+Install the `blake2b` gem:
+
+ % gem install blake2b
+
+Then add the `git-remote-nm` script anywhere in your `$PATH`, and make sure
+it's executable.
 
 You'll also need notmuch Ruby bindings. You can check that you have them by
 running:

@@ -31,13 +31,13 @@ test_expect_success 'setup' '
 
 test_expect_success 'cloning' '
 	git clone "nm::$HOME/mail" mail.git &&
-	check mail.git "1258506353-20352-1-git-send-email-stewart@flamingspork.com" "inbox unread"
+	check mail.git "05/ca/1258506353-20352-1-git-send-email-stewart@flamingspork.com" "inbox unread"
 '
 
 test_expect_success 'pull' '
 	notmuch tag -inbox tag:inbox &&
 	git -C mail.git pull -v &&
-	check mail.git "1258506353-20352-1-git-send-email-stewart@flamingspork.com" "unread"
+	check mail.git "05/ca/1258506353-20352-1-git-send-email-stewart@flamingspork.com" "unread"
 '
 
 test_expect_success 'push' '
@@ -45,10 +45,10 @@ test_expect_success 'push' '
 	(
 	cd mail.git &&
 	git pull -q &&
-	check . "1258506353-20352-1-git-send-email-stewart@flamingspork.com" "" &&
+	check . "05/ca/1258506353-20352-1-git-send-email-stewart@flamingspork.com" "" &&
 	git checkout -q @~ -- . &&
 	git commit -q -m "go back" &&
-	check . "1258506353-20352-1-git-send-email-stewart@flamingspork.com" "unread" &&
+	check . "05/ca/1258506353-20352-1-git-send-email-stewart@flamingspork.com" "unread" &&
 	git push -v
 	) &&
 	nm_check "1258506353-20352-1-git-send-email-stewart@flamingspork.com" "unread"
@@ -83,7 +83,7 @@ test_expect_success 'encoding' '
 	(
 	cd mail.git &&
 	git pull -q &&
-	echo encoding >> "%47x%47%47x%47%47%47x%47%47%47%47xx%47@bar.com/tags" &&
+	echo encoding >> "ed/45/%47x%47%47x%47%47%47x%47%47%47%47xx%47@bar.com/tags" &&
 	git commit -q -a -m "add encoding" &&
 	git push -q
 	) &&

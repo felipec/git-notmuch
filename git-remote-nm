@@ -3,6 +3,7 @@
 # Copyright (c) 2023 Felipe Contreras
 
 require 'notmuch'
+require 'blake2b'
 require 'fileutils'
 
 def debug(*args)
@@ -119,7 +120,7 @@ def wr_export
         loop do
           _, _, mark, path = rd_s
           break unless path
-          id = decode_filename(path.delete_suffix('/tags'))
+          id = decode_filename(path.delete_suffix('/tags')[6..])
           msg = db.find_message(id)
           # TODO: implement `tags=` in Notmuch::Message
           cur_tags = msg.tags.to_a
@@ -150,7 +151,9 @@ def wr_import(ref)
   wr_l 'deleteall'
 
   $db.query('').search_messages.each do |msg|
-    wr_l 'M 644 inline %s/tags' % encode_filename(msg.message_id)
+    hash = Blake2b.hex(msg.message_id, Blake2b::Key.none, 2)
+    dir1, dir2 = hash[..1], hash[2..]
+    wr_l 'M 644 inline %s/%s/%s/tags' % [dir1, dir2, encode_filename(msg.message_id)]
     wr_data(msg.tags.to_a.join("\n") + "\n")
   end
 
