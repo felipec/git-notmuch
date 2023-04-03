@@ -97,7 +97,7 @@ def decode_filename(str)
 end
 
 def encode_filename(str)
-  str.gsub(%r[/(?=/)|\A/|/\Z], '%47')
+  str.gsub('/', '%47')
 end
 
 def wr_export

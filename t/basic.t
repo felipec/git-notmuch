@@ -83,7 +83,7 @@ test_expect_success 'encoding' '
 	(
 	cd mail.git &&
 	git pull -q &&
-	echo encoding >> "%47x%47/x%47%47/x%47%47%47/xx/@bar.com/tags" &&
+	echo encoding >> "%47x%47%47x%47%47%47x%47%47%47%47xx%47@bar.com/tags" &&
 	git commit -q -a -m "add encoding" &&
 	git push -q
 	) &&
