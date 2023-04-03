@@ -12,5 +12,7 @@ jobs:
         run: sudo apt-get install -y notmuch ruby-notmuch
       - name: Install sharness
         run: git clone --depth 1 https://github.com/felipec/sharness.git t/sharness
+      - name: Install BLAKE2b
+        run: gem install blake2b
       - name: Run tests
         run: SHARNESS_TEST_SRCDIR=t/sharness t/basic.t -v
